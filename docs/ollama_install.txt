@@ -1,0 +1,13 @@
+brew install ollama
+# 백그라운드 서비스로 실행 (재부팅 후에도 자동 시작)
+brew services start ollama
+# 서버가 떴는지 확인 — 11434 포트가 기본입니다
+curl http://localhost:11434/api/tags
+
+# 기본 모델 — 5주차에서 바로 사용합니다
+ollama pull llama3.2:3b
+# 대화형으로 바로 테스트 (/bye 로 종료)
+ollama run llama3.2:3b
+# 설치된 모델 목록 / 현재 메모리에 올라간 모델
+ollama list
+ollama ps

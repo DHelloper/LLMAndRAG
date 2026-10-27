@@ -1,0 +1,52 @@
+brew install pgvector
+
+pgvector Install
+cd /tmp
+git clone --branch v0.8.1 https://github.com/pgvector/pgvector.git
+cd pgvector
+# 2) 빌드 대상 PostgreSQL을 명시합니다.
+# 이 변수를 지정하지 않으면 PATH에 먼저 잡히는 다른 버전으로 빌드될 수 있습니다.
+export PG_CONFIG=/opt/homebrew/opt/postgresql@16/bin/pg_config
+# 3) 컴파일 (1~2분)
+make PG_CONFIG=$PG_CONFIG
+# 4) PostgreSQL 16의 extension 폴더로 설치
+make install PG_CONFIG=$PG_CONFIG
+
+# 확장 파일이 제자리에 들어갔는지 확인
+ls "$(pg_config --sharedir)/extension" | grep vector
+
+# PostgreSQL 재시작 (확장을 인식시키기 위해)
+brew services restart postgresql@16
+
+# ragdb 라는 데이터베이스를 새로 만듭니다 (6~8주차 내내 사용)
+createdb ragdb
+# 그 DB에 접속해 대화형 SQL 셸을 엽니다. 종료는 \q
+psql ragdb
+
+-- pgvector 확장 활성화
+CREATE EXTENSION IF NOT EXISTS vector;
+-- 문서 메타데이터 (8주차에 Spring이 조회)
+CREATE TABLE documents (
+id BIGSERIAL PRIMARY KEY,
+filename TEXT NOT NULL,
+title TEXT,
+pages INT,
+created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+-- 청크 + 임베딩 (6주차 색인, 7주차 검색)
+-- 384은 6주차에서 쓰는 intfloat/multilingual-e5-small 의 차원 수입니다.
+-- 임베딩 모델을 바꾸면 이 숫자도 바꾸고 전체를 재색인해야 합니다.
+CREATE TABLE chunks (
+id BIGSERIAL PRIMARY KEY,
+document_id BIGINT NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
+page INT NOT NULL,
+chunk_index INT NOT NULL,
+content TEXT NOT NULL,
+embedding vector(384)
+);
+-- 코사인 거리 기준 근사 최근접 인덱스
+CREATE INDEX chunks_embedding_idx
+ON chunks USING hnsw (embedding vector_cosine_ops);
+-- 설치 검증: 두 벡터의 코사인 거리 계산
+SELECT '[1,0,0]'::vector <=> '[0,1,0]'::vector AS cosine_distance;
+-- 기대 결과: 1 (완전히 직교 = 전혀 안 닮음)
