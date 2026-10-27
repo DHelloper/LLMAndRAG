@@ -1,0 +1,4 @@
+.vscode/
+venv/
+data/*.pdf
+.DS_Store

@@ -1,0 +1,21 @@
+# --- 1~2주차: 수치 계산 기초 ---
+numpy==2.1.3
+matplotlib==3.9.2
+# --- 2~4주차: 신경망 / Mini GPT ---
+torch==2.5.1
+# --- 5주차: Ollama HTTP 호출 ---
+requests==2.32.3
+# --- 6주차: PDF 파싱 + 임베딩 ---
+pypdf==5.1.0
+pdfplumber==0.11.4
+sentence-transformers==3.3.1
+# --- 6~7주차: PostgreSQL 연결 ---
+psycopg[binary]==3.2.3
+pgvector==0.3.6
+# --- 7주차: RAG API (Java Spring이 호출할 Python 서비스) ---
+fastapi==0.115.5
+uvicorn==0.32.1
+python-multipart==0.0.17
+# --- 9주차: Apple Silicon LoRA 실험 ---
+mlx==0.21.1
+mlx-lm==0.20.4
